@@ -7,7 +7,6 @@ import streamlit as st
 
 from langchain_community.vectorstores import FAISS
 from langchain_community.embeddings import HuggingFaceEmbeddings
-from langchain_community.llms import CTransformers
 from langchain_core.prompts import ChatPromptTemplate
 
 # --------------------------------------------------
@@ -38,9 +37,7 @@ def log_interaction(
     similarity_score,
     retrieved_docs
 ):
-
     log_file = "user_interaction_logs.csv"
-
     file_exists = os.path.isfile(log_file)
 
     with open(
@@ -49,11 +46,9 @@ def log_interaction(
         newline="",
         encoding="utf-8"
     ) as file:
-
         writer = csv.writer(file)
 
         if not file_exists:
-
             writer.writerow([
                 "timestamp",
                 "question",
@@ -63,9 +58,7 @@ def log_interaction(
             ])
 
         writer.writerow([
-            datetime.now().strftime(
-                "%Y-%m-%d %H:%M:%S"
-            ),
+            datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             question,
             answer,
             similarity_score,
@@ -78,15 +71,11 @@ def log_interaction(
 
 @st.cache_resource
 def load_vectorstore():
-
     embedding_model = HuggingFaceEmbeddings(
         model_name="sentence-transformers/all-MiniLM-L6-v2"
     )
 
-    base_dir = os.path.dirname(
-        os.path.abspath(__file__)
-    )
-
+    base_dir = os.path.dirname(os.path.abspath(__file__))
     vectorstore_path = os.path.join(
         base_dir,
         "notebooks",
@@ -94,11 +83,7 @@ def load_vectorstore():
     )
 
     if not os.path.exists(vectorstore_path):
-
-        st.error(
-            f"Vectorstore folder not found:\n{vectorstore_path}"
-        )
-
+        st.error(f"Vectorstore folder not found:\n{vectorstore_path}")
         st.stop()
 
     return FAISS.load_local(
@@ -108,43 +93,49 @@ def load_vectorstore():
     )
 
 # --------------------------------------------------
-# LOAD LLM
+# LOAD LLM (HYBRID: LOCAL GGUF OR CLOUD GROQ API)
 # --------------------------------------------------
 
 @st.cache_resource
 def load_llm():
-
-    base_dir = os.path.dirname(
-        os.path.abspath(__file__)
-    )
-
+    base_dir = os.path.dirname(os.path.abspath(__file__))
     model_path = os.path.join(
         base_dir,
         "models",
         "llama-2-7b-chat.Q4_K_M.gguf"
     )
 
-    if not os.path.exists(model_path):
-
-        st.error(
-            f"Model file not found:\n{model_path}"
+    # 1. Use local GGUF model if running locally and file exists
+    if os.path.exists(model_path):
+        from langchain_community.llms import CTransformers
+        return CTransformers(
+            model=model_path,
+            model_type="llama",
+            config={
+                "max_new_tokens": 120,
+                "temperature": 0.0,
+                "top_p": 1.0,
+                "repetition_penalty": 1.15,
+                "context_length": 4096
+            }
         )
 
-        st.stop()
+    # 2. Otherwise use Groq API on Streamlit Community Cloud
+    groq_api_key = os.environ.get("GROQ_API_KEY") or st.secrets.get("GROQ_API_KEY", None)
+    if groq_api_key:
+        from langchain_groq import ChatGroq
+        return ChatGroq(
+            groq_api_key=groq_api_key,
+            model_name="llama-3.1-8b-instant",
+            temperature=0.0,
+            max_tokens=120
+        )
 
-    llm = CTransformers(
-        model=model_path,
-        model_type="llama",
-        config={
-            "max_new_tokens": 120,
-            "temperature": 0.0,
-            "top_p": 1.0,
-            "repetition_penalty": 1.15,
-            "context_length": 4096
-        }
+    st.error(
+        "LLM not configured. Place 'llama-2-7b-chat.Q4_K_M.gguf' in 'models/' for local run, "
+        "or add 'GROQ_API_KEY' in Streamlit Cloud Secrets."
     )
-
-    return llm
+    st.stop()
 
 # --------------------------------------------------
 # LOAD COMPONENTS
@@ -203,19 +194,10 @@ query = st.text_input(
 # --------------------------------------------------
 
 if st.button("Submit"):
-
     if not query.strip():
-
-        st.warning(
-            "Please enter a question."
-        )
-
+        st.warning("Please enter a question.")
     else:
-
-        with st.spinner(
-            "Generating answer..."
-        ):
-
+        with st.spinner("Generating answer..."):
             results = vectorstore.similarity_search_with_score(
                 query,
                 k=3
@@ -225,26 +207,15 @@ if st.button("Submit"):
             retrieved_docs = 0
 
             if len(results) == 0:
-
-                answer = (
-                    "I'm focused on Class 8 Science NCERT content."
-                )
-
+                answer = "I'm focused on Class 8 Science NCERT content."
                 sources = []
-
             else:
-
                 best_score = results[0][1]
-
-                similarity_score = round(
-                    float(best_score),
-                    4
-                )
+                similarity_score = round(float(best_score), 4)
 
                 # ----------------------------------
                 # Keyword overlap check
                 # ----------------------------------
-
                 stop_words = {
                     "what", "who", "when", "where", "why",
                     "how", "is", "are", "was", "were",
@@ -266,72 +237,46 @@ if st.button("Submit"):
                 keyword_found = False
 
                 for doc, score in results:
-
                     content_words = set(
-                        re.findall(
-                            r'\b\w+\b',
-                            doc.page_content.lower()
-                        )
+                        re.findall(r'\b\w+\b', doc.page_content.lower())
                     )
-
                     if query_words.intersection(content_words):
                         keyword_found = True
                         break
 
-# ----------------------------------
-# Out-of-syllabus detection
-# ----------------------------------
-
+                # ----------------------------------
+                # Out-of-syllabus detection
+                # ----------------------------------
                 if best_score > 1.3 or not keyword_found:
-
-                    answer = (
-                        "I'm focused on Class 8 Science NCERT content, try re-phrasing."
-                )
-
+                    answer = "I'm focused on Class 8 Science NCERT content, try re-phrasing."
                     sources = []
-
                 else:
-
-                    docs = [
-                        doc
-                        for doc, score in results
-                    ]
-
+                    docs = [doc for doc, score in results]
                     retrieved_docs = len(docs)
 
-                    context = "\n\n".join(
-                        [
-                            doc.page_content
-                            for doc in docs
-                        ]
-                    )
+                    context = "\n\n".join([doc.page_content for doc in docs])
 
                     formatted_prompt = prompt.format(
-                         context=context,
-                         input=query
+                        context=context,
+                        input=query
                     )
 
-                    answer = llm.invoke(
-                         formatted_prompt
-                    )
-
+                    response = llm.invoke(formatted_prompt)
+                    answer = response.content if hasattr(response, "content") else str(response)
                     sources = docs
-# --------------------------------------
-# STORE CHAT HISTORY
-# --------------------------------------
 
+            # --------------------------------------
+            # STORE CHAT HISTORY
+            # --------------------------------------
             st.session_state.chat_history.append({
-
                 "question": query,
                 "answer": answer,
                 "sources": sources
-
             })
 
             # --------------------------------------
             # LOG INTERACTION
             # --------------------------------------
-
             log_interaction(
                 question=query,
                 answer=answer,
@@ -344,39 +289,16 @@ if st.button("Submit"):
 # --------------------------------------------------
 
 if st.session_state.chat_history:
-
     st.markdown("---")
-
     st.markdown("## Conversation")
 
-    for item in reversed(
-        st.session_state.chat_history
-    ):
-
-        st.markdown(
-            f"### ❓ Question\n{item['question']}"
-        )
-
-        st.markdown(
-            f"### ✅ Answer\n{item['answer']}"
-        )
+    for item in reversed(st.session_state.chat_history):
+        st.markdown(f"### ❓ Question\n{item['question']}")
+        st.markdown(f"### ✅ Answer\n{item['answer']}")
 
         if item["sources"]:
-
-            with st.expander(
-                "📚 View Source Snippets"
-            ):
-
-                for i, doc in enumerate(
-                    item["sources"]
-                ):
-
-                    st.markdown(
-                        f"**Source {i+1}**"
-                    )
-
-                    st.write(
-                        doc.page_content[:500]
-                    )
-
+            with st.expander("📚 View Source Snippets"):
+                for i, doc in enumerate(item["sources"]):
+                    st.markdown(f"**Source {i+1}**")
+                    st.write(doc.page_content[:500])
                     st.divider()
