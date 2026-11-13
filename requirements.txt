@@ -1,11 +1,9 @@
 streamlit
 langchain
+langchain-core
 langchain-community
+langchain-groq
 sentence-transformers
 faiss-cpu
-ctransformers
-llama-cpp-python
 pandas
 numpy
-nltk
-rouge-score
