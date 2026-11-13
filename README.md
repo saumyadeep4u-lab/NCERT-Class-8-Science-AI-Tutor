@@ -80,7 +80,7 @@ Curriculum-Based-AI-Tutor-for-NCERT-Class-8-Science/
 
 ## 💻 How to Run Locally
 
-1. **Clone the repository:** `git clone [(https://github.com/saumyadeep4u-lab/Curriculum-Based-AI-Tutor-for-NCERT-Class-8-Science.git)]`
+1. **Clone the repository:** `git clone [(https://github.com/saumyadeep4u-lab/NCERT-Class-8-Science-AI-Tutor.git)]`
 2. **Open the project folder:** `cd Curriculum-Based-AI-Tutor-for-NCERT-Class-8-Science`
 3. **Install dependencies:** `pip install -r requirements.txt`
 4. **Download Model Weights:** Place the quantized `llama-2-7b-chat.Q4_K_M.gguf` model file inside the `models/` directory.
