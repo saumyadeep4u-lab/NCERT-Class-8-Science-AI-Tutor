@@ -128,8 +128,9 @@ def load_llm():
             groq_api_key=groq_api_key,
             model_name="openai/gpt-oss-20b",
             temperature=0.0,
-            max_tokens=120
+            max_tokens=1024
         )
+
     st.error(
         "LLM not configured. Place 'llama-2-7b-chat.Q4_K_M.gguf' in 'models/' for local run, "
         "or add 'GROQ_API_KEY' in Streamlit Cloud Secrets."
@@ -261,7 +262,8 @@ if st.button("Submit"):
                     )
 
                     response = llm.invoke(formatted_prompt)
-                    answer = response.content if hasattr(response, "content") else str(response)
+                    raw_answer = response.content if hasattr(response, "content") else str(response)
+                    answer = re.sub(r"<think>.*?</think>", "", raw_answer, flags=re.DOTALL).strip()
                     sources = docs
 
             # --------------------------------------
