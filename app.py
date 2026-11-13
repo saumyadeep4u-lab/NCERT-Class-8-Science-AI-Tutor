@@ -126,11 +126,10 @@ def load_llm():
         from langchain_groq import ChatGroq
         return ChatGroq(
             groq_api_key=groq_api_key,
-            model_name="llama-3.1-8b-instant",
+            model_name="openai/gpt-oss-20b",
             temperature=0.0,
             max_tokens=120
         )
-
     st.error(
         "LLM not configured. Place 'llama-2-7b-chat.Q4_K_M.gguf' in 'models/' for local run, "
         "or add 'GROQ_API_KEY' in Streamlit Cloud Secrets."
