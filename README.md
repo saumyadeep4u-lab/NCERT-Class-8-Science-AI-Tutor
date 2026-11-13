@@ -3,6 +3,7 @@
 An end-to-end **Retrieval-Augmented Generation (RAG)** AI Tutor engineered to answer student questions strictly grounded in the **NCERT Class 8 Science** textbook. Built with **LangChain**, **FAISS**, **Sentence Transformers (`all-MiniLM-L6-v2`)**, and **Llama-2-7B-Q Chat (GGUF)**, and deployed via an interactive **Streamlit** web interface with transparent textbook source snippets and out-of-syllabus guardrails.
 
 ---
+🌐 **Live Demo:** [Try the NCERT Class 8 Science AI Tutor Here] https://ncert-class-8-science-ai-tutor.streamlit.app/
 
 ## 🚀 Key Features
 - 🔍 **Semantic Textbook Retrieval:** Converts textbook passages and student queries into vector embeddings using `all-MiniLM-L6-v2` and retrieves top-matching context via a **FAISS** vector database.
