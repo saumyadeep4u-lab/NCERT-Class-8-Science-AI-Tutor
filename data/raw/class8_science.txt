@@ -1,0 +1,3 @@
+https://drive.google.com/file/d/1vnVBZxPOLxJZMKsO-AMY5nMNCD5q-_pa/view?usp=sharing
+
+Since the file size would become too large, I removed the class8_science.pdf file. I have provided the google drive link from which it can be downloaded. Please download the pdf file and place it here only. After that, the ai_tutor_class8.ipynb file from the notebooks folder can be run.

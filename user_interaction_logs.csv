@@ -1,0 +1,13 @@
+timestamp,question,answer,similarity_score,retrieved_docs
+2026-06-03 14:33:55,What is S.I.R. ?,"I'm focused on Class 8 Science NCERT content, try re-phrasing.",1.545,0
+2026-06-03 14:36:02,What is chlorophyll ?,"Chlorophyll is a green pigment found in plastids, especially chloroplasts, which helps in photosynthesis.",1.0977,3
+2026-06-03 14:38:01,Why rotate crops ?,"Rotating crops helps maintain ecological balance by reducing the impact of pests and diseases on a single crop. It also promotes biodiversity and soil health, which are essential for sustainable agriculture.",0.9076,3
+2026-06-04 10:28:51,Who is Virat Kohli ?,"I'm focused on Class 8 Science NCERT content, try re-phrasing.",1.291,0
+2026-06-04 10:29:22,What is the full form of IPL ?,"I'm focused on Class 8 Science NCERT content, try re-phrasing.",1.465,0
+2026-06-04 10:33:56,Which microorganisms can be seen only through a microscope ?,Viruses are microscopic and acellular. They multiply when they enter a living cell.,0.7712,3
+2026-06-04 13:04:16,Why do objects float in water ?,Objects float in water because the buoyant force exerted on them by the liquid is greater than their weight. The density of the object and the liquid are important factors in determining whether it will float or sink.,0.5486,3
+2026-06-04 13:06:56,Why are vaccines important ?,"Vaccines help prevent serious diseases by training the immune system to recognise and attack harmful germs, providing acquired immunity. They also reduce the spread of infections and save millions of lives every year.",0.4612,3
+2026-06-04 13:09:05,Why do mirrors reflect light ?,"Mirrors reflect light because of their property called specular reflection . This means that when light hits a mirror, it is reflected back in the same direction as the incident light.",0.8978,3
+2026-06-04 13:17:16,What is pasteurization ?,"I'm focused on Class 8 Science NCERT content, try re-phrasing.",1.2843,0
+2026-06-04 13:20:13,What is friction ?,Friction is a contact force that arises due to two surfaces in contact and opposes any effort to move one surface over the other.,0.634,3
+2026-06-04 13:24:17,Why should plastic waste not be burnt ?,"Plastic waste can release toxic chemicals when burned, harming the environment and human health.",0.8218,3
